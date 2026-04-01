@@ -21,7 +21,13 @@ export interface NavbarActionLink {
   url: string;
 }
 
+export interface NavbarUserProfile {
+  name: string;
+  image: string | null;
+}
+
 export interface Navbar1Props {
   className?: string;
   logo?: NavbarLogo;
+  userProfile?: NavbarUserProfile | null;
 }

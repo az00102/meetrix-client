@@ -7,8 +7,8 @@ const defaultLogo = {
   alt: "logo",
   title: "MEETRIX",
 };
-const Navbar1 = ({ logo = defaultLogo, className }: Navbar1Props) => (
-  <Navbar1Client logo={logo} className={className} />
+const Navbar1 = ({ logo = defaultLogo, className, userProfile }: Navbar1Props) => (
+  <Navbar1Client logo={logo} className={className} userProfile={userProfile} />
 );
 
 export { Navbar1 };

@@ -11,7 +11,13 @@ import { cn } from "@/lib/utils";
 import { Navbar1DesktopMenu } from "./navbar1-desktop-menu.client";
 import { Navbar1MobileMenu } from "./navbar1-mobile-menu.client";
 import { ThemeToggle } from "./theme-toggle";
-import type { MenuItem, NavbarActionLink, NavbarLogo } from "./navbar1.types";
+import { UserAvatarLink } from "./user-avatar-link";
+import type {
+  MenuItem,
+  NavbarActionLink,
+  NavbarLogo,
+  NavbarUserProfile,
+} from "./navbar1.types";
 
 const LOGO_SIZE = 32;
 
@@ -32,20 +38,23 @@ const guestLinks: NavbarActionLink[] = [
 ];
 
 const authenticatedLinks: NavbarActionLink[] = [
-  { title: "Dashboard", url: "#" },
-  { title: "Profile", url: "#" },
+  { title: "Dashboard", url: "/dashboard" },
+  { title: "Profile", url: "/dashboard/settings/myprofile" },
 ];
 
 function Navbar1Client({
   logo,
   className,
+  userProfile,
 }: {
   logo: NavbarLogo;
   className?: string;
+  userProfile?: NavbarUserProfile | null;
 }) {
   const { logout, status } = useAuthSession();
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
   const isAuthenticated = status === "authenticated";
+  const navbarProfile = userProfile ?? { name: "My Profile", image: null };
   const menu = isAuthenticated ? authenticatedMenu : guestMenu;
   const quickLinks = isAuthenticated ? authenticatedLinks : guestLinks;
   const logoHref = logo.url ?? "/";
@@ -104,14 +113,19 @@ function Navbar1Client({
                 ))}
 
             {isAuthenticated ? (
-              <button
+              <UserAvatarLink profile={navbarProfile} />
+            ) : null}
+
+            {isAuthenticated ? (
+              <Button
                 type="button"
+                variant="destructive"
+                size="sm"
                 onClick={handleLogout}
                 disabled={isLoggingOut}
-                className="text-sm font-medium rounded-2xl transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {isLoggingOut ? "Logging out..." : "Logout"}
-              </button>
+              </Button>
             ) : null}
 
             <ThemeToggle />
@@ -125,6 +139,7 @@ function Navbar1Client({
           isAuthenticated={isAuthenticated}
           isLoggingOut={isLoggingOut}
           onLogout={handleLogout}
+          userProfile={navbarProfile}
         />
       </div>
     </section>

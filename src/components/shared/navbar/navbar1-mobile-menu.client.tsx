@@ -23,7 +23,13 @@ import { cn } from "@/lib/utils";
 
 import { NavbarMenuIcon } from "./navbar1-icon";
 import { ThemeToggle } from "./theme-toggle";
-import type { MenuItem, NavbarActionLink, NavbarLogo } from "./navbar1.types";
+import { UserAvatarLink } from "./user-avatar-link";
+import type {
+  MenuItem,
+  NavbarActionLink,
+  NavbarLogo,
+  NavbarUserProfile,
+} from "./navbar1.types";
 
 const LOGO_SIZE = 32;
 
@@ -34,6 +40,7 @@ function Navbar1MobileMenu({
   isAuthenticated,
   isLoggingOut,
   onLogout,
+  userProfile,
 }: {
   logo: NavbarLogo;
   menu: MenuItem[];
@@ -41,6 +48,7 @@ function Navbar1MobileMenu({
   isAuthenticated: boolean;
   isLoggingOut: boolean;
   onLogout: () => Promise<void>;
+  userProfile: NavbarUserProfile | null;
 }) {
   return (
     <div className="block lg:hidden">
@@ -55,13 +63,17 @@ function Navbar1MobileMenu({
             className={cn("h-8 w-auto dark:invert", logo.className)}
           />
         </Link>
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon">
-              <Menu className="size-4" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent className="overflow-y-auto">
+        <div className="flex items-center gap-3">
+          {isAuthenticated && userProfile ? (
+            <UserAvatarLink profile={userProfile} />
+          ) : null}
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Menu className="size-4" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent className="overflow-y-auto">
             <SheetHeader>
               <SheetTitle>
                 <Link href={logo.url ?? "/"} className="flex items-center gap-2">
@@ -102,7 +114,7 @@ function Navbar1MobileMenu({
                 {isAuthenticated ? (
                   <Button
                     type="button"
-                    variant="outline"
+                    variant="destructive"
                     onClick={() => void onLogout()}
                     disabled={isLoggingOut}
                   >
@@ -113,8 +125,9 @@ function Navbar1MobileMenu({
                 <ThemeToggle />
               </div>
             </div>
-          </SheetContent>
-        </Sheet>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
     </div>
   );

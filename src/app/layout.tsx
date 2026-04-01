@@ -6,6 +6,7 @@ import { AuthSessionProvider } from "@/components/shared/auth-session-provider";
 import { Footer } from "@/components/shared/footer";
 import { Navbar1 } from "@/components/shared/navbar";
 import { ThemeProvider } from "@/components/shared/theme-provider";
+import { getServerCurrentUserProfile } from "@/lib/server-profile-api";
 
 const AUTH_STATUS_COOKIE = "meetrix-auth-status";
 
@@ -33,6 +34,10 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const authStatusCookie = cookieStore.get(AUTH_STATUS_COOKIE)?.value;
   const initialAuthStatus =
     authStatusCookie === "authenticated" ? "authenticated" : "guest";
+  const userProfile =
+    initialAuthStatus === "authenticated"
+      ? (await getServerCurrentUserProfile()).profile
+      : null;
 
   return (
     <html
@@ -44,7 +49,7 @@ export default async function RootLayout({ children }: RootLayoutProps) {
       <body className="min-h-screen flex flex-col font-sans">
         <ThemeProvider>
           <AuthSessionProvider initialStatus={initialAuthStatus}>
-            <Navbar1 />
+            <Navbar1 userProfile={userProfile} />
             <div className="flex flex-1 flex-col">{children}</div>
             <Footer />
           </AuthSessionProvider>
