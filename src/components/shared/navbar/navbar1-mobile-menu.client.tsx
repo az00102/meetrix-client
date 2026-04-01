@@ -51,8 +51,8 @@ function Navbar1MobileMenu({
   userProfile: NavbarUserProfile | null;
 }) {
   return (
-    <div className="block lg:hidden">
-      <div className="flex items-center justify-between">
+    <div className="block w-full lg:hidden">
+      <div className="flex items-center justify-between rounded-[24px] border border-border/80 bg-background/92 px-4 py-3 shadow-sm">
         <Link href={logo.url ?? "/"} className="flex items-center gap-2">
           <Image
             src={logo.src}
@@ -69,7 +69,7 @@ function Navbar1MobileMenu({
           ) : null}
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="outline" size="icon">
+              <Button variant="outline" size="icon" className="rounded-full">
                 <Menu className="size-4" />
               </Button>
             </SheetTrigger>
@@ -105,7 +105,13 @@ function Navbar1MobileMenu({
                   <Button
                     asChild
                     key={link.title}
-                    variant={isAuthenticated ? "outline" : "default"}
+                    variant={
+                      isAuthenticated && link.emphasis === "secondary"
+                        ? "secondary"
+                        : isAuthenticated
+                          ? "outline"
+                          : "default"
+                    }
                   >
                     <Link href={link.url}>{link.title}</Link>
                   </Button>

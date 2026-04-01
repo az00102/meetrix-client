@@ -3,6 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { LayoutDashboardIcon } from "lucide-react";
 
 import { useAuthSession } from "@/components/shared/auth-session-provider";
 import { Button } from "@/components/ui/button";
@@ -23,13 +24,13 @@ const LOGO_SIZE = 32;
 
 const guestMenu: MenuItem[] = [
   { title: "Home", url: "/" },
-  { title: "Events", url: "#" },
+  { title: "Events", url: "/events" },
   { title: "About", url: "#" },
 ];
 
 const authenticatedMenu: MenuItem[] = [
   { title: "Home", url: "/" },
-  { title: "Events", url: "#" },
+  { title: "Events", url: "/events" },
   { title: "Create Event", url: "#" },
 ];
 
@@ -38,8 +39,7 @@ const guestLinks: NavbarActionLink[] = [
 ];
 
 const authenticatedLinks: NavbarActionLink[] = [
-  { title: "Dashboard", url: "/dashboard" },
-  { title: "Profile", url: "/dashboard/settings/myprofile" },
+  { title: "Dashboard", url: "/dashboard", emphasis: "secondary" },
 ];
 
 function Navbar1Client({
@@ -72,9 +72,14 @@ function Navbar1Client({
   }
 
   return (
-    <section className={cn("flex justify-center p-4", className)}>
-      <div className="container flex-row justify-around">
-        <nav className="hidden justify-between lg:flex">
+    <section
+      className={cn(
+        "sticky top-0 z-20 bg-background/84 backdrop-blur-xl",
+        className
+      )}
+    >
+      <div className="mx-auto flex w-full sm:px-6 ">
+        <nav className="hidden w-full items-center justify-between bg-background/92 px-5 py-3 lg:flex">
           <div className="flex items-center gap-6">
             <Link href={logoHref} className="flex items-center gap-2">
               <Image
@@ -98,13 +103,17 @@ function Navbar1Client({
           <div className="flex items-center gap-5">
             {isAuthenticated
               ? quickLinks.map((link) => (
-                  <Link
+                  <Button
+                    asChild
                     key={link.title}
-                    href={link.url}
-                    className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                    size="sm"
+                    variant={link.emphasis === "secondary" ? "secondary" : "outline"}
                   >
-                    {link.title}
-                  </Link>
+                    <Link href={link.url}>
+                      <LayoutDashboardIcon data-icon="inline-start" />
+                      {link.title}
+                    </Link>
+                  </Button>
                 ))
               : quickLinks.map((link) => (
                   <Button asChild key={link.title} size="sm">

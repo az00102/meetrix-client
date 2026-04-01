@@ -19,6 +19,7 @@ export interface NavbarLogo {
 export interface NavbarActionLink {
   title: string;
   url: string;
+  emphasis?: "default" | "secondary";
 }
 
 export interface NavbarUserProfile {
