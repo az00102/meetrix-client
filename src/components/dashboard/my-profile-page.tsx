@@ -251,8 +251,8 @@ function ProfileImageCard({ profile }: { profile: CurrentUserProfile }) {
           )}
         </div>
         <p className="text-sm leading-6 text-foreground">
-          Manage your image from the edit profile modal. Upload wiring is still
-          a placeholder for now.
+          Manage your photo from Edit profile. Photo updates will be available
+          soon.
         </p>
       </div>
     </div>

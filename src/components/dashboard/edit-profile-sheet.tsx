@@ -113,7 +113,7 @@ function EditProfileSheet({
     if (Object.keys(nextPayload).length === 0) {
       setErrorMessage(
         selectedImageName
-          ? "Image upload is still a placeholder. Update another field if you want to save changes right now."
+          ? "Profile photo updates will be available soon. Update another field to save changes right now."
           : "Make at least one change before saving."
       );
       return;
@@ -232,9 +232,8 @@ function EditProfileSheet({
                       Update profile image
                     </p>
                     <p className="text-sm leading-6 text-muted-foreground">
-                      This is a frontend placeholder for now. You can pick an
-                      image and preview it here, but it will not be saved until
-                      the backend image upload flow is ready.
+                      Choose a new photo and preview how it will look. Saving
+                      profile photo changes will be available soon.
                     </p>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                       <Button

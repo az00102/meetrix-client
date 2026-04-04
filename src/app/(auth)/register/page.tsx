@@ -54,8 +54,7 @@ function RegisterPage() {
                 Create your account
               </h2>
               <p className="text-sm leading-6 text-muted-foreground">
-                Fill in your details below. You can connect the form to your
-                real registration API later.
+                Fill in your details below to get started with Meetrix.
               </p>
             </div>
 

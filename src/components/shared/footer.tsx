@@ -67,7 +67,7 @@ function Footer() {
 
         <div className="flex flex-col gap-3 border-t border-border pt-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
           <p>(c) {new Date().getFullYear()} Meetrix. Designed for focused event teams.</p>
-          <p>Frontend on Next.js, ready to grow with your auth and event workflows.</p>
+          <p>Built for smoother planning, registration, and event operations.</p>
         </div>
       </div>
     </footer>
