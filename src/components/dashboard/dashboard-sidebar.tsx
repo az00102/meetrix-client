@@ -2,15 +2,29 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
 import { usePathname } from "next/navigation";
 import {
+  CalendarRangeIcon,
+  CreditCardIcon,
   HouseIcon,
   LayoutDashboardIcon,
-  MenuIcon,
+  MailIcon,
+  Menu,
+  UsersRoundIcon,
   UserRoundIcon,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { dashboardQueryKeys } from "@/lib/dashboard-query-keys";
+import { getMyInvitations } from "@/lib/invitation-api";
+import { getMyEvents } from "@/lib/managed-events-api";
+import { resolveMyEventsQuery } from "@/lib/my-events-route";
+import { getMyPayments } from "@/lib/payment-api";
+import { resolvePaymentsQuery } from "@/lib/payments-route";
+import { getMyParticipations } from "@/lib/participation-api";
+import { resolveParticipationsQuery } from "@/lib/participations-route";
+import { resolveInvitationsQuery } from "@/lib/invitations-route";
 import {
   Sheet,
   SheetContent,
@@ -21,6 +35,11 @@ import {
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 
+const DEFAULT_MY_EVENTS_QUERY = resolveMyEventsQuery({});
+const DEFAULT_PARTICIPATIONS_QUERY = resolveParticipationsQuery({});
+const DEFAULT_INVITATIONS_QUERY = resolveInvitationsQuery({});
+const DEFAULT_PAYMENTS_QUERY = resolvePaymentsQuery({});
+
 type DashboardNavItem = {
   href: string;
   label: string;
@@ -30,10 +49,28 @@ type DashboardNavItem = {
 
 const dashboardNavItems: DashboardNavItem[] = [
   {
-    href: "/dashboard",
-    label: "Dashboard",
-    description: "Jump back to your main workspace.",
-    icon: LayoutDashboardIcon,
+    href: "/dashboard/my-events",
+    label: "My Events",
+    description: "Manage hosted events, participants, and invitations.",
+    icon: CalendarRangeIcon,
+  },
+  {
+    href: "/dashboard/participations",
+    label: "Participations",
+    description: "Track the events you joined and their approval state.",
+    icon: UsersRoundIcon,
+  },
+  {
+    href: "/dashboard/invitations",
+    label: "Invitations",
+    description: "Review received invites and monitor the ones you send.",
+    icon: MailIcon,
+  },
+  {
+    href: "/dashboard/payments",
+    label: "Payments",
+    description: "Track payment history, gateway results, and return states.",
+    icon: CreditCardIcon,
   },
   {
     href: "/dashboard/settings/myprofile",
@@ -45,6 +82,45 @@ const dashboardNavItems: DashboardNavItem[] = [
 
 function DashboardSidebar() {
   const pathname = usePathname();
+  const queryClient = useQueryClient();
+
+  const prefetchDashboardRoute = React.useCallback(
+    (href: string) => {
+      if (href === "/dashboard/my-events") {
+        void queryClient.prefetchQuery({
+          queryKey: dashboardQueryKeys.myEvents(DEFAULT_MY_EVENTS_QUERY),
+          queryFn: ({ signal }) => getMyEvents(DEFAULT_MY_EVENTS_QUERY, signal),
+        });
+        return;
+      }
+
+      if (href === "/dashboard/participations") {
+        void queryClient.prefetchQuery({
+          queryKey: dashboardQueryKeys.myParticipations(DEFAULT_PARTICIPATIONS_QUERY),
+          queryFn: ({ signal }) =>
+            getMyParticipations(DEFAULT_PARTICIPATIONS_QUERY, signal),
+        });
+        return;
+      }
+
+      if (href === "/dashboard/invitations") {
+        void queryClient.prefetchQuery({
+          queryKey: dashboardQueryKeys.myInvitations(DEFAULT_INVITATIONS_QUERY),
+          queryFn: ({ signal }) =>
+            getMyInvitations(DEFAULT_INVITATIONS_QUERY, signal),
+        });
+        return;
+      }
+
+      if (href === "/dashboard/payments") {
+        void queryClient.prefetchQuery({
+          queryKey: dashboardQueryKeys.myPayments(DEFAULT_PAYMENTS_QUERY),
+          queryFn: ({ signal }) => getMyPayments(DEFAULT_PAYMENTS_QUERY, signal),
+        });
+      }
+    },
+    [queryClient]
+  );
 
   return (
     <>
@@ -52,32 +128,44 @@ function DashboardSidebar() {
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" size="lg">
-              Open dashboard menu
-              <MenuIcon data-icon="inline-end" />
+              Dashboard
+              <Menu className="size-4" data-icon="inline-end" />
             </Button>
           </SheetTrigger>
           <SheetContent side="left" className="overflow-y-auto">
             <SheetHeader>
-              <SheetTitle>Dashboard menu</SheetTitle>
+              <SheetTitle>Dashboard</SheetTitle>
               <SheetDescription>
                 Navigate through your Meetrix dashboard sections.
               </SheetDescription>
             </SheetHeader>
-            <DashboardSidebarContent pathname={pathname} />
+            <DashboardSidebarContent
+              pathname={pathname}
+              onPrefetch={prefetchDashboardRoute}
+            />
           </SheetContent>
         </Sheet>
       </div>
 
       <aside className="hidden w-80 shrink-0 lg:block">
         <div className="sticky top-4">
-          <DashboardSidebarContent pathname={pathname} />
+          <DashboardSidebarContent
+            pathname={pathname}
+            onPrefetch={prefetchDashboardRoute}
+          />
         </div>
       </aside>
     </>
   );
 }
 
-function DashboardSidebarContent({ pathname }: { pathname: string }) {
+function DashboardSidebarContent({
+  pathname,
+  onPrefetch,
+}: {
+  pathname: string;
+  onPrefetch: (href: string) => void;
+}) {
   return (
     <div className="flex flex-col gap-5 rounded-[2rem] border border-border bg-card p-5 shadow-sm">
       <div className="flex flex-col gap-3">
@@ -91,22 +179,22 @@ function DashboardSidebarContent({ pathname }: { pathname: string }) {
             Dashboard
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            Move between your account areas without losing the page structure.
+            Keep events, invitations, payments, and profile details in one place.
           </p>
         </div>
       </div>
 
       <nav className="flex flex-col gap-2">
         {dashboardNavItems.map((item) => {
-          const isActive =
-            pathname === item.href ||
-            (item.href !== "/dashboard" && pathname.startsWith(item.href));
+          const isActive = pathname === item.href || pathname.startsWith(item.href);
           const Icon = item.icon;
 
           return (
             <Link
               key={item.href}
               href={item.href}
+              onMouseEnter={() => onPrefetch(item.href)}
+              onFocus={() => onPrefetch(item.href)}
               className={cn(
                 "rounded-[1.5rem] border px-4 py-3 transition-colors",
                 isActive

@@ -31,7 +31,7 @@ const guestMenu: MenuItem[] = [
 const authenticatedMenu: MenuItem[] = [
   { title: "Home", url: "/" },
   { title: "Events", url: "/events" },
-  { title: "Create Event", url: "#" },
+  { title: "Create Event", url: "/create-event" },
 ];
 
 const guestLinks: NavbarActionLink[] = [
