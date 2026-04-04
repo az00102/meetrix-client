@@ -13,7 +13,6 @@ import {
   TicketIcon,
 } from "lucide-react";
 
-import { AuthAwareEventCta } from "@/components/events/auth-aware-event-cta";
 import { EventsControls } from "@/components/events/events-controls";
 import { Button } from "@/components/ui/button";
 import { getClientPublicEvents } from "@/lib/client-events-api";
@@ -312,12 +311,9 @@ function FeaturedEventSection({ event }: { event: PublicEventDetail }) {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <AuthAwareEventCta
-            eventLink={event.eventLink}
-            eventLabel="Open event"
-            guestLabel="Create your account"
-            authenticatedLabel="Open dashboard"
-          />
+          <Button asChild size="lg">
+            <Link href={`/events/${event.slug}`}>View details</Link>
+          </Button>
         </div>
       </div>
 
@@ -437,17 +433,9 @@ function EventCard({ event }: { event: PublicEventCard }) {
             {event.requiresApproval ? "Approval required" : "Open registration"}
           </p>
 
-          {event.eventLink ? (
-            <Button asChild size="sm">
-              <a href={event.eventLink} target="_blank" rel="noreferrer">
-                Open event
-              </a>
-            </Button>
-          ) : (
-            <Button asChild size="sm">
-              <Link href="/register">Join Meetrix</Link>
-            </Button>
-          )}
+          <Button asChild size="sm">
+            <Link href={`/events/${event.slug}`}>View details</Link>
+          </Button>
         </div>
       </div>
     </article>

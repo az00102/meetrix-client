@@ -1,7 +1,10 @@
 import "server-only";
 
+import { cookies } from "next/headers";
+
 import type {
   ApiEnvelope,
+  PublicEventAccessState,
   PublicEventCard,
   PublicEventDetail,
   PublicEventsMeta,
@@ -16,12 +19,14 @@ const EVENT_REQUEST_RETRY_DELAY_MS = 180;
 type ServerEventResult<T> = {
   data: T | null;
   errorMessage: string | null;
+  errorStatus: number | null;
 };
 
 type ServerEventsListResult = {
   data: PublicEventCard[];
   meta: PublicEventsMeta | null;
   errorMessage: string | null;
+  errorStatus: number | null;
 };
 
 async function parseApiResult<T>(response: Response) {
@@ -31,19 +36,48 @@ async function parseApiResult<T>(response: Response) {
     | null;
 }
 
-async function requestPublicEvent<T>(path: string): Promise<ServerEventResult<T>> {
-  const initialResult = await requestPublicEventOnce<T>(path);
+async function buildCookieHeader() {
+  return cookies()
+    .then((cookieStore) =>
+      cookieStore
+        .getAll()
+        .map((cookie) => `${cookie.name}=${encodeURIComponent(cookie.value)}`)
+        .join("; ")
+    )
+    .catch(() => "");
+}
+
+async function requestPublicEvent<T>(
+  path: string,
+  options?: {
+    includeCookies?: boolean;
+  }
+): Promise<ServerEventResult<T>> {
+  const initialResult = await requestPublicEventOnce<T>(path, options);
 
   if (!shouldRetryPublicEventRequest(initialResult.errorMessage)) {
     return initialResult;
   }
 
   await wait(EVENT_REQUEST_RETRY_DELAY_MS);
-  return requestPublicEventOnce<T>(path);
+  return requestPublicEventOnce<T>(path, options);
 }
 
 async function getFeaturedEvent() {
   return requestPublicEvent<PublicEventDetail | null>("/events/featured");
+}
+
+async function getPublicEventBySlug(slug: string) {
+  return requestPublicEvent<PublicEventDetail>(`/events/${encodeURIComponent(slug)}`);
+}
+
+async function getPublicEventAccessState(slug: string) {
+  return requestPublicEvent<PublicEventAccessState>(
+    `/events/${encodeURIComponent(slug)}/access-state`,
+    {
+      includeCookies: true,
+    }
+  );
 }
 
 async function getUpcomingEvents(limit = 8) {
@@ -109,12 +143,19 @@ function isPublicEventsMeta(value: unknown): value is PublicEventsMeta {
   );
 }
 
-async function requestPublicEventOnce<T>(path: string): Promise<ServerEventResult<T>> {
+async function requestPublicEventOnce<T>(
+  path: string,
+  options?: {
+    includeCookies?: boolean;
+  }
+): Promise<ServerEventResult<T>> {
   try {
+    const cookieHeader = options?.includeCookies ? await buildCookieHeader() : "";
     const response = await fetch(`${API_BASE_URL}${path}`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
+        ...(cookieHeader ? { Cookie: cookieHeader } : {}),
       },
       cache: "no-store",
     });
@@ -125,17 +166,20 @@ async function requestPublicEventOnce<T>(path: string): Promise<ServerEventResul
       return {
         data: null,
         errorMessage: result?.message ?? "Unable to load live event data right now.",
+        errorStatus: response.status,
       };
     }
 
     return {
       data: result.data,
       errorMessage: null,
+      errorStatus: null,
     };
   } catch {
     return {
       data: null,
       errorMessage: "The event service is currently unavailable.",
+      errorStatus: null,
     };
   }
 }
@@ -162,6 +206,7 @@ async function requestPublicEventsOnce(
         data: [],
         meta: null,
         errorMessage: result?.message ?? "Unable to load the events list right now.",
+        errorStatus: response.status,
       };
     }
 
@@ -169,12 +214,14 @@ async function requestPublicEventsOnce(
       data: result.data,
       meta: isPublicEventsMeta(result.meta) ? result.meta : null,
       errorMessage: null,
+      errorStatus: null,
     };
   } catch {
     return {
       data: [],
       meta: null,
       errorMessage: "The event service is currently unavailable.",
+      errorStatus: null,
     };
   }
 }
@@ -192,4 +239,10 @@ function wait(durationMs: number) {
   });
 }
 
-export { getFeaturedEvent, getPublicEvents, getUpcomingEvents };
+export {
+  getFeaturedEvent,
+  getPublicEventAccessState,
+  getPublicEventBySlug,
+  getPublicEvents,
+  getUpcomingEvents,
+};

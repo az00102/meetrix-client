@@ -42,14 +42,14 @@ export default function Home() {
       >
         <div className="flex flex-col gap-3 lg:max-w-2xl">
           <p className="text-xs font-semibold tracking-[0.24em] uppercase text-muted-foreground">
-            Live event feed
+            Upcoming
           </p>
           <h2 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
-            Upcoming sessions pulled straight from the API.
+            See what&apos;s coming up next.
           </h2>
           <p className="text-base leading-7 text-muted-foreground">
-            This section is wired to the backend upcoming-events endpoint, so the
-            homepage shifts as new public events are published.
+            Explore upcoming events, featured sessions, and new experiences as
+            they go live.
           </p>
         </div>
 
@@ -117,13 +117,9 @@ function FeaturedEventHero({ event }: { event: PublicEventDetail }) {
           </div>
 
           <div className="flex flex-wrap gap-3">
-            <AuthAwareEventCta
-              eventLink={event.eventLink}
-              eventLabel="Open event link"
-              guestLabel="Create your account"
-              authenticatedLabel="Open dashboard"
-              showArrow
-            />
+            <Button asChild size="lg">
+              <Link href={`/events/${event.slug}`}>View details</Link>
+            </Button>
 
             <Button asChild size="lg" variant="outline">
               <Link href="#upcoming-events">Browse upcoming events</Link>
@@ -196,15 +192,16 @@ function FeaturedEventFallback({ errorMessage }: { errorMessage: string | null }
 
           <div className="flex flex-col gap-3">
             <h1 className="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-              Live featured events will land here.
+              Featured events will appear here soon.
             </h1>
             <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-              The homepage is now wired for live backend content. As soon as a
-              public featured event is available, this hero updates automatically.
+              Check back soon for standout sessions and featured moments from
+              upcoming events.
             </p>
             {errorMessage ? (
               <p className="text-sm leading-6 text-muted-foreground">
-                Current API note: {errorMessage}
+                We couldn&apos;t load the featured event right now. Please try
+                again shortly.
               </p>
             ) : null}
           </div>
@@ -225,11 +222,10 @@ function FeaturedEventFallback({ errorMessage }: { errorMessage: string | null }
           <div className="flex min-h-[21rem] h-full items-end overflow-hidden rounded-[30px] border border-border bg-linear-to-br from-muted via-background to-muted/70 p-6">
             <div className="flex max-w-sm flex-col gap-2">
               <p className="text-sm font-semibold tracking-[0.2em] uppercase text-muted-foreground">
-                Waiting on live data
+                Featured spotlight
               </p>
               <p className="text-lg font-semibold tracking-tight text-foreground">
-                Publish a featured event in the backend and this spotlight updates
-                without any homepage code changes.
+                This space is reserved for the next standout event on Meetrix.
               </p>
             </div>
           </div>
@@ -247,16 +243,16 @@ async function UpcomingEventsSection() {
       <div className="rounded-[30px] border border-border bg-muted/40 p-6 sm:p-8">
         <div className="flex max-w-xl flex-col gap-3">
           <h3 className="text-2xl font-semibold tracking-tight text-foreground">
-            Upcoming events will appear here next.
+            Upcoming events will appear here soon.
           </h3>
           <p className="text-base leading-7 text-muted-foreground">
-            This slider is already connected to `GET /api/v1/events/upcoming`.
-            Once upcoming events are available, they will stream into the homepage
-            automatically.
+            Check back soon to discover newly published events and upcoming
+            sessions.
           </p>
           {errorMessage ? (
             <p className="text-sm leading-6 text-muted-foreground">
-              Current API note: {errorMessage}
+              We couldn&apos;t load upcoming events right now. Please try again
+              shortly.
             </p>
           ) : null}
         </div>
